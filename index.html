@@ -9,48 +9,94 @@
     --bg:#0f1115; --panel:#161a22; --panel2:#1d2230;
     --text:#e8ecf1; --muted:#9aa3b2; --accent:#7cc4ff;
     --user:#243047; --bot:#1b2230; --border:#2a3142;
-    --danger:#ff6b6b; --ok:#6bd39a; --sidebar-w:320px;
+    --danger:#ff6b6b; --sidebar-w:320px;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;height:100%;overflow:hidden}
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-       background:var(--bg);color:var(--text);display:flex}
-  
-  /* Overlay mobile */
+       background:var(--bg);color:var(--text)}
+
+  /* ==========================================================
+     BOUTON FLOTTANT : TOUJOURS VISIBLE, JAMAIS MASQUÉ
+     ========================================================== */
+  #fabToggle{
+    position:fixed;
+    top:14px;
+    left:14px;
+    z-index:100;
+    width:44px;height:44px;
+    background:var(--accent);
+    color:#0a1020;
+    border:none;
+    border-radius:10px;
+    font-size:20px;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.45);
+    transition:left .3s ease, transform .15s ease;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #fabToggle:hover{transform:scale(1.07)}
+  #fabToggle:active{transform:scale(.95)}
+
+  /* Desktop : quand le panneau est ouvert, le bouton glisse
+     juste à sa droite (il ne disparaît jamais) */
+  @media (min-width:701px){
+    body.sidebar-open #fabToggle{ left:calc(var(--sidebar-w) + 14px); }
+  }
+  /* Mobile : quand le panneau est ouvert, le ✕ du panneau prend
+     le relais, on masque le flotteur pour ne pas gêner */
+  @media (max-width:700px){
+    body.sidebar-open #fabToggle{ display:none; }
+  }
+
+  /* ==========================================================
+     OVERLAY
+     ========================================================== */
   .overlay{
-    display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
-    z-index:15;opacity:0;transition:opacity .3s ease;
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,.55);
+    z-index:25;
   }
-  .overlay.show{display:block;opacity:1}
-  
-  /* Sidebar */
+  .overlay.show{display:block}
+
+  /* ==========================================================
+     PANNEAU LATÉRAL (drawer fixe, ne prend JAMAIS de place)
+     ========================================================== */
   .sidebar{
-    width:var(--sidebar-w);background:var(--panel);border-right:1px solid var(--border);
-    display:flex;flex-direction:column;flex-shrink:0;
+    position:fixed;
+    top:0;left:0;
+    height:100vh;
+    width:var(--sidebar-w);
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    display:flex;flex-direction:column;
+    transform:translateX(-100%);
     transition:transform .3s ease;
-    z-index:20;
+    z-index:30;
+    box-shadow:4px 0 24px rgba(0,0,0,.4);
   }
-  .sidebar.closed{transform:translateX(calc(-1 * var(--sidebar-w)))}
-  
+  body.sidebar-open .sidebar{transform:translateX(0)}
+
   .sidebar-header{
-    padding:12px;border-bottom:1px solid var(--border);display:flex;
-    justify-content:space-between;align-items:center;
+    padding:12px 14px;border-bottom:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;
+    flex-shrink:0;
   }
   .sidebar-header h2{margin:0;font-size:15px;color:var(--accent)}
   .close-sidebar-btn{
     background:transparent;border:1px solid var(--border);color:var(--muted);
     width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;
   }
-  .close-sidebar-btn:hover{color:var(--accent);border-color:var(--accent)}
-  
-  .tabs{display:flex;border-bottom:1px solid var(--border)}
-  .tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:13px;
+  .close-sidebar-btn:hover{color:var(--danger);border-color:var(--danger)}
+
+  .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+  .tab{flex:1;padding:11px;text-align:center;cursor:pointer;font-size:13px;
        color:var(--muted);border-bottom:2px solid transparent;transition:.2s;
        user-select:none}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
   .tab-content{flex:1;overflow-y:auto;padding:10px;display:none}
   .tab-content.active{display:block}
-  
+
   .conv-item,.mem-item{
     background:var(--panel2);border:1px solid var(--border);border-radius:8px;
     padding:10px;margin-bottom:8px;font-size:13px;cursor:pointer;
@@ -59,7 +105,7 @@
   .conv-item:hover,.mem-item:hover{border-color:var(--accent)}
   .conv-item.active{border-color:var(--accent);background:#1f2a40}
   .conv-item .title{font-weight:600;margin-bottom:4px;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;padding-right:35px}
+                    overflow:hidden;text-overflow:ellipsis;padding-right:32px}
   .conv-item .date{font-size:11px;color:var(--muted)}
   .conv-item .actions,.mem-item .actions{
     position:absolute;top:8px;right:8px;display:flex;gap:4px;
@@ -71,49 +117,58 @@
   }
   .icon-btn:hover{color:var(--accent);border-color:var(--accent)}
   .icon-btn.danger:hover{color:var(--danger);border-color:var(--danger)}
-  
+
   .mem-item{cursor:default}
-  .mem-item .content{padding-right:30px;line-height:1.4}
+  .mem-item .content{padding-right:28px;line-height:1.4}
   .mem-item .badge{
     display:inline-block;font-size:10px;padding:2px 6px;border-radius:10px;
     margin-bottom:4px;background:var(--border);color:var(--muted);
   }
   .mem-item .badge.auto{background:#2a3f5a;color:var(--accent)}
-  
+
   .new-btn{
-    width:100%;padding:8px;background:var(--accent);color:#0a1020;border:none;
+    width:100%;padding:9px;background:var(--accent);color:#0a1020;border:none;
     border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;margin-bottom:10px;
   }
   .new-btn:hover{opacity:.9}
-  
+
   .mem-input{display:flex;gap:6px;margin-bottom:10px}
   .mem-input input{
-    flex:1;background:var(--panel2);color:var(--text);border:1px solid var(--border);
-    border-radius:6px;padding:8px;font-size:13px;font-family:inherit;
+    flex:1;min-width:0;background:var(--panel2);color:var(--text);
+    border:1px solid var(--border);border-radius:6px;padding:8px;
+    font-size:13px;font-family:inherit;
   }
   .mem-input button{
     background:var(--accent);color:#0a1020;border:none;border-radius:6px;
-    padding:0 12px;cursor:pointer;font-weight:600;font-size:13px;
+    padding:0 12px;cursor:pointer;font-weight:600;font-size:15px;
   }
-  
-  /* Main area */
-  .main{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
+
+  /* ==========================================================
+     ZONE PRINCIPALE
+     ========================================================== */
+  .main{
+    display:flex;flex-direction:column;
+    height:100vh;
+    margin-left:0;
+    transition:margin-left .3s ease;
+  }
+  @media (min-width:701px){
+    body.sidebar-open .main{margin-left:var(--sidebar-w)}
+  }
+
   header{
-    padding:12px 18px;background:var(--panel);border-bottom:1px solid var(--border);
-    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
-    flex-shrink:0;
+    padding:12px 18px 12px 72px;
+    background:var(--panel);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:10px;flex-shrink:0;
+    min-height:72px;
   }
-  header .left{display:flex;align-items:center;gap:12px;min-width:0}
-  header h1{margin:0;font-size:18px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  header .sub{font-size:12px;color:var(--muted);white-space:nowrap}
-  .toggle-btn{
-    background:var(--panel2);color:var(--text);border:1px solid var(--border);
-    width:40px;height:40px;border-radius:6px;cursor:pointer;font-size:18px;
-    flex-shrink:0;
+  header h1{margin:0;font-size:18px;color:var(--accent)}
+  header .sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+  main#chat{
+    flex:1;overflow-y:auto;padding:18px;
+    display:flex;flex-direction:column;gap:12px;
   }
-  .toggle-btn:hover{border-color:var(--accent);color:var(--accent)}
-  
-  main{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
   .msg{max-width:85%;padding:12px 14px;border-radius:12px;line-height:1.5;
        white-space:pre-wrap;word-wrap:break-word;font-size:14.5px;position:relative}
   .msg.user{align-self:flex-end;background:var(--user);border:1px solid #2e3a57}
@@ -122,7 +177,7 @@
               font-size:12px;font-style:italic;border:none;padding:4px;max-width:100%}
   .msg pre{background:#0b0d12;padding:10px;border-radius:6px;overflow-x:auto;font-size:13px}
   .msg code{background:#0b0d12;padding:1px 5px;border-radius:4px;font-size:13px}
-  .msg .meta{font-size:11px;color:var(--muted);margin-top:6px;display:flex;gap:8px;align-items:center}
+  .msg .meta{font-size:11px;color:var(--muted);margin-top:6px}
   .msg .msg-actions{display:flex;gap:4px;margin-top:6px}
   .msg .msg-actions button{
     background:transparent;border:1px solid var(--border);color:var(--muted);
@@ -136,22 +191,23 @@
   }
   .msg.editing .edit-actions{display:flex;gap:6px;margin-top:6px}
   .msg.editing .edit-actions button{
-    padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;border:none;
+    padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;border:none;
   }
   .msg.editing .edit-actions .save{background:var(--accent);color:#0a1020;font-weight:600}
-  .msg.editing .edit-actions .cancel{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
-  
-  .regen-wrap{align-self:flex-start;margin-top:-8px;margin-bottom:4px}
+  .msg.editing .edit-actions .cancel{background:var(--panel2);color:var(--text);
+                                     border:1px solid var(--border)}
+
+  .regen-wrap{align-self:flex-start;margin-top:-6px}
   .regen-btn{
     background:transparent;border:1px solid var(--border);color:var(--muted);
-    padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;
+    padding:5px 11px;border-radius:4px;cursor:pointer;font-size:12px;
   }
   .regen-btn:hover{color:var(--accent);border-color:var(--accent)}
-  
+
   footer{padding:12px;background:var(--panel);border-top:1px solid var(--border);
          display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
   textarea.input-area{
-    flex:1;resize:none;background:var(--panel2);color:var(--text);
+    flex:1;min-width:0;resize:none;background:var(--panel2);color:var(--text);
     border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px;
     font-family:inherit;min-height:48px;max-height:200px;
   }
@@ -161,19 +217,18 @@
     border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;
   }
   button.send:disabled{opacity:.5;cursor:not-allowed}
-  
+
   .typing{display:inline-block}
   .typing span{display:inline-block;width:6px;height:6px;background:var(--muted);
                border-radius:50%;margin:0 2px;animation:blink 1.2s infinite}
   .typing span:nth-child(2){animation-delay:.2s}
   .typing span:nth-child(3){animation-delay:.4s}
   @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-  
+
   .empty{text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic}
-  
+
   @media (max-width:700px){
     :root{--sidebar-w:85vw}
-    .sidebar{position:fixed;top:0;left:0;height:100vh;box-shadow:4px 0 20px rgba(0,0,0,.5)}
     header h1{font-size:15px}
     header .sub{display:none}
     .msg{max-width:95%}
@@ -182,23 +237,26 @@
 </head>
 <body>
 
+<!-- BOUTON FLOTTANT : indépendant, toujours là quand le panneau est fermé -->
+<button id="fabToggle" title="Afficher / masquer le panneau" aria-label="Afficher le panneau">☰</button>
+
 <div class="overlay" id="overlay"></div>
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <h2>🕊️ Ariane-Ithélice</h2>
-    <button class="close-sidebar-btn" id="closeSidebarBtn" title="Fermer">✕</button>
+    <button class="close-sidebar-btn" id="closeSidebarBtn" title="Rabattre le panneau">✕</button>
   </div>
   <div class="tabs">
     <div class="tab active" data-tab="conv">Conversations</div>
     <div class="tab" data-tab="mem">Mémoire</div>
   </div>
-  
+
   <div class="tab-content active" id="tab-conv">
     <button class="new-btn" id="newConvBtn">+ Nouvelle conversation</button>
     <div id="convList"></div>
   </div>
-  
+
   <div class="tab-content" id="tab-mem">
     <h3 style="font-size:13px;color:var(--accent);margin:4px 0 8px">Mémoire manuelle</h3>
     <div class="mem-input">
@@ -206,7 +264,7 @@
       <button id="memAddBtn">+</button>
     </div>
     <div id="manualMemList"></div>
-    
+
     <h3 style="font-size:13px;color:var(--accent);margin:16px 0 8px">Mémoire long terme (autonome)</h3>
     <div id="autoMemList"></div>
   </div>
@@ -214,19 +272,17 @@
 
 <div class="main">
   <header>
-    <div class="left">
-      <button class="toggle-btn" id="toggleSidebar" title="Ouvrir/fermer le panneau">☰</button>
-      <div style="min-width:0">
-        <h1>🕊️ Agent Ariane-Ithélice v1.1</h1>
-        <div class="sub">Libre · Gratuit · Illimité · Mémoire persistante</div>
-      </div>
+    <div>
+      <h1>🕊️ Agent Ariane-Ithélice v1.1</h1>
+      <div class="sub">Libre · Gratuit · Illimité · Mémoire persistante</div>
     </div>
   </header>
 
   <main id="chat"></main>
 
   <footer>
-    <textarea class="input-area" id="input" placeholder="Pose ta question dans le cadre Ariane-Ithélice v1.1..." rows="1"></textarea>
+    <textarea class="input-area" id="input"
+      placeholder="Pose ta question dans le cadre Ariane-Ithélice v1.1..." rows="1"></textarea>
     <button class="send" id="sendBtn">Envoyer</button>
   </footer>
 </div>
@@ -304,21 +360,13 @@ function loadState(){
 }
 
 function saveState(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }catch(e){
-    console.error('Erreur sauvegarde:', e);
-  }
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.error('Erreur sauvegarde:', e); }
 }
 
 function createNewConversation(silent=false){
   const id = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-  const conv = {
-    id,
-    title: 'Nouvelle conversation',
-    createdAt: Date.now(),
-    messages: []
-  };
+  const conv = { id, title:'Nouvelle conversation', createdAt:Date.now(), messages:[] };
   state.conversations.unshift(conv);
   state.currentId = id;
   saveState();
@@ -345,44 +393,43 @@ function switchConversation(id){
   state.currentId = id;
   saveState();
   renderAll();
-  // Fermer le sidebar sur mobile après sélection
   if(window.innerWidth <= 700) closeSidebar();
 }
 
 /* ============================================================
-   SIDEBAR
+   PANNEAU LATÉRAL — logique robuste
+   Le bouton flottant #fabToggle est HORS du panneau.
+   Il ne peut donc JAMAIS être rabattu avec lui.
    ============================================================ */
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
+const fabToggle = document.getElementById('fabToggle');
+
+function applySidebarState(){
+  document.body.classList.toggle('sidebar-open', state.sidebarOpen);
+  fabToggle.setAttribute('aria-expanded', String(state.sidebarOpen));
+  if(state.sidebarOpen && window.innerWidth <= 700){
+    overlay.classList.add('show');
+  } else {
+    overlay.classList.remove('show');
+  }
+}
 
 function openSidebar(){
   state.sidebarOpen = true;
-  sidebar.classList.remove('closed');
-  if(window.innerWidth <= 700) overlay.classList.add('show');
   saveState();
+  applySidebarState();
 }
 
 function closeSidebar(){
   state.sidebarOpen = false;
-  sidebar.classList.add('closed');
-  overlay.classList.remove('show');
   saveState();
+  applySidebarState();
 }
 
 function toggleSidebar(){
   if(state.sidebarOpen) closeSidebar();
   else openSidebar();
-}
-
-// Init sidebar state
-function initSidebarState(){
-  if(state.sidebarOpen){
-    sidebar.classList.remove('closed');
-    if(window.innerWidth <= 700) overlay.classList.add('show');
-  } else {
-    sidebar.classList.add('closed');
-    overlay.classList.remove('show');
-  }
 }
 
 /* ============================================================
@@ -395,28 +442,27 @@ function addManualMemory(text){
   saveState();
   renderMemory();
 }
-
 function removeManualMemory(id){
   state.manualMemory = state.manualMemory.filter(m=>m.id!==id);
   saveState();
   renderMemory();
 }
-
 function addAutoMemory(text){
   text = text.trim();
   if(!text) return;
   if(state.autoMemory.some(m=>m.text.toLowerCase()===text.toLowerCase())) return;
-  state.autoMemory.push({id:'a_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), text, createdAt:Date.now()});
+  state.autoMemory.push({
+    id:'a_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),
+    text, createdAt:Date.now()
+  });
   saveState();
   renderMemory();
 }
-
 function removeAutoMemory(id){
   state.autoMemory = state.autoMemory.filter(m=>m.id!==id);
   saveState();
   renderMemory();
 }
-
 function removeAutoMemoryByText(text){
   const t = text.trim().toLowerCase();
   state.autoMemory = state.autoMemory.filter(m=>m.text.trim().toLowerCase()!==t);
@@ -424,28 +470,18 @@ function removeAutoMemoryByText(text){
   renderMemory();
 }
 
-/* ============================================================
-   PARSING DES BLOCS MÉMOIRE
-   ============================================================ */
 function parseMemoryBlocks(text){
-  const adds = [];
-  const removes = [];
-  let clean = text;
-  
+  const adds = [], removes = [];
+  let clean = text, m;
   const addRegex = /\[MEM_ADD\]([\s\S]*?)\[\/MEM_ADD\]/g;
-  let m;
-  while((m = addRegex.exec(text)) !== null){
-    adds.push(m[1].trim());
-  }
+  while((m = addRegex.exec(text)) !== null) adds.push(m[1].trim());
   clean = clean.replace(/\[MEM_ADD\][\s\S]*?\[\/MEM_ADD\]/g,'');
-  
+
   const remRegex = /\[MEM_REMOVE\]([\s\S]*?)\[\/MEM_REMOVE\]/g;
-  while((m = remRegex.exec(text)) !== null){
-    removes.push(m[1].trim());
-  }
+  while((m = remRegex.exec(text)) !== null) removes.push(m[1].trim());
   clean = clean.replace(/\[MEM_REMOVE\][\s\S]*?\[\/MEM_REMOVE\]/g,'');
-  
-  return {clean: clean.trim(), adds, removes};
+
+  return {clean:clean.trim(), adds, removes};
 }
 
 /* ============================================================
@@ -458,6 +494,12 @@ const convList = document.getElementById('convList');
 const manualMemList = document.getElementById('manualMemList');
 const autoMemList = document.getElementById('autoMemList');
 
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function scrollDown(){ chat.scrollTop = chat.scrollHeight; }
+
 function renderConversations(){
   convList.innerHTML = '';
   if(state.conversations.length === 0){
@@ -467,19 +509,19 @@ function renderConversations(){
   state.conversations.forEach(conv=>{
     const div = document.createElement('div');
     div.className = 'conv-item' + (conv.id===state.currentId?' active':'');
-    const date = new Date(conv.createdAt).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    const date = new Date(conv.createdAt).toLocaleString('fr-FR',
+      {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
     div.innerHTML = `
       <div class="title">${escapeHtml(conv.title)}</div>
       <div class="date">${date} · ${conv.messages.length} msg</div>
       <div class="actions">
-        <button class="icon-btn danger" title="Supprimer" data-del="${conv.id}">🗑</button>
-      </div>
-    `;
+        <button class="icon-btn danger" title="Supprimer">🗑</button>
+      </div>`;
     div.addEventListener('click', (e)=>{
-      if(e.target.closest('[data-del]')) return;
+      if(e.target.closest('.icon-btn')) return;
       switchConversation(conv.id);
     });
-    div.querySelector('[data-del]').addEventListener('click',(e)=>{
+    div.querySelector('.icon-btn').addEventListener('click',(e)=>{
       e.stopPropagation();
       deleteConversation(conv.id);
     });
@@ -498,15 +540,12 @@ function renderMemory(){
       div.innerHTML = `
         <span class="badge">Manuel</span>
         <div class="content">${escapeHtml(m.text)}</div>
-        <div class="actions">
-          <button class="icon-btn danger" title="Supprimer" data-del="${m.id}">✕</button>
-        </div>
-      `;
-      div.querySelector('[data-del]').addEventListener('click',()=>removeManualMemory(m.id));
+        <div class="actions"><button class="icon-btn danger" title="Supprimer">✕</button></div>`;
+      div.querySelector('.icon-btn').addEventListener('click',()=>removeManualMemory(m.id));
       manualMemList.appendChild(div);
     });
   }
-  
+
   autoMemList.innerHTML = '';
   if(state.autoMemory.length === 0){
     autoMemList.innerHTML = '<div class="empty">L\'IA n\'a encore rien mémorisé automatiquement</div>';
@@ -518,57 +557,30 @@ function renderMemory(){
       div.innerHTML = `
         <span class="badge auto">Autonome · ${date}</span>
         <div class="content">${escapeHtml(m.text)}</div>
-        <div class="actions">
-          <button class="icon-btn danger" title="Oublier" data-del="${m.id}">✕</button>
-        </div>
-      `;
-      div.querySelector('[data-del]').addEventListener('click',()=>removeAutoMemory(m.id));
+        <div class="actions"><button class="icon-btn danger" title="Oublier">✕</button></div>`;
+      div.querySelector('.icon-btn').addEventListener('click',()=>removeAutoMemory(m.id));
       autoMemList.appendChild(div);
     });
   }
-}
-
-function renderChat(){
-  chat.innerHTML = '';
-  const conv = getCurrentConv();
-  if(!conv) return;
-  
-  if(conv.messages.length === 0){
-    const sys = document.createElement('div');
-    sys.className = 'msg system';
-    sys.textContent = 'Agent Ariane-Ithélice v1.1 initialisé. Le cadre IFH-TEC, IOB et la logique de non-contradiction sont actifs. Pose ta question.';
-    chat.appendChild(sys);
-    return;
-  }
-  
-  conv.messages.forEach((msg, idx)=>{
-    appendMessageToDOM(msg, idx);
-  });
-  
-  // Ajouter bouton regen si dernier message est bot
-  const last = conv.messages[conv.messages.length-1];
-  if(last.role === 'bot') addRegenButton();
-  
-  scrollDown();
 }
 
 function appendMessageToDOM(msg, idx){
   const div = document.createElement('div');
   div.className = `msg ${msg.role}`;
   div.dataset.idx = idx;
-  
+
   const contentDiv = document.createElement('div');
   contentDiv.className = 'content';
   contentDiv.textContent = msg.content;
   div.appendChild(contentDiv);
-  
+
   if(msg.role === 'bot' && msg.duration != null){
     const meta = document.createElement('div');
     meta.className = 'meta';
     meta.textContent = `⏱ ${msg.duration.toFixed(1)}s`;
     div.appendChild(meta);
   }
-  
+
   if(msg.role === 'user'){
     const actions = document.createElement('div');
     actions.className = 'msg-actions';
@@ -578,54 +590,27 @@ function appendMessageToDOM(msg, idx){
     actions.appendChild(editBtn);
     div.appendChild(actions);
   }
-  
+
   chat.appendChild(div);
   return div;
 }
 
-function startEditMessage(idx, div){
+function renderChat(){
+  chat.innerHTML = '';
   const conv = getCurrentConv();
-  const msg = conv.messages[idx];
-  const contentDiv = div.querySelector('.content');
-  const actionsDiv = div.querySelector('.msg-actions');
-  
-  div.classList.add('editing');
-  contentDiv.style.display = 'none';
-  if(actionsDiv) actionsDiv.style.display = 'none';
-  
-  const textarea = document.createElement('textarea');
-  textarea.value = msg.content;
-  div.insertBefore(textarea, div.firstChild);
-  
-  const editActions = document.createElement('div');
-  editActions.className = 'edit-actions';
-  editActions.innerHTML = `
-    <button class="save">✓ Valider et relancer</button>
-    <button class="cancel">Annuler</button>
-  `;
-  div.appendChild(editActions);
-  
-  editActions.querySelector('.cancel').addEventListener('click',()=>{
-    div.classList.remove('editing');
-    textarea.remove();
-    editActions.remove();
-    contentDiv.style.display = '';
-    if(actionsDiv) actionsDiv.style.display = '';
-  });
-  
-  editActions.querySelector('.save').addEventListener('click', async ()=>{
-    const newText = textarea.value.trim();
-    if(!newText) return;
-    
-    conv.messages = conv.messages.slice(0, idx);
-    conv.messages.push({role:'user', content:newText, timestamp:Date.now()});
-    saveState();
-    
-    renderChat();
-    scrollDown();
-    
-    await generateBotResponse();
-  });
+  if(!conv) return;
+
+  if(conv.messages.length === 0){
+    const sys = document.createElement('div');
+    sys.className = 'msg system';
+    sys.textContent = 'Agent Ariane-Ithélice v1.1 initialisé. Le cadre IFH-TEC, IOB et la logique de non-contradiction sont actifs. Pose ta question.';
+    chat.appendChild(sys);
+    return;
+  }
+
+  conv.messages.forEach((msg, idx)=>appendMessageToDOM(msg, idx));
+  if(conv.messages[conv.messages.length-1].role === 'bot') addRegenButton();
+  scrollDown();
 }
 
 function renderAll(){
@@ -634,27 +619,59 @@ function renderAll(){
   renderMemory();
 }
 
-function scrollDown(){
-  chat.scrollTop = chat.scrollHeight;
-}
+/* ============================================================
+   ÉDITION D'UN MESSAGE UTILISATEUR
+   ============================================================ */
+function startEditMessage(idx, div){
+  const conv = getCurrentConv();
+  const msg = conv.messages[idx];
+  const contentDiv = div.querySelector('.content');
+  const actionsDiv = div.querySelector('.msg-actions');
 
-function escapeHtml(str){
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  div.classList.add('editing');
+  contentDiv.style.display = 'none';
+  if(actionsDiv) actionsDiv.style.display = 'none';
+
+  const textarea = document.createElement('textarea');
+  textarea.value = msg.content;
+  div.insertBefore(textarea, div.firstChild);
+
+  const editActions = document.createElement('div');
+  editActions.className = 'edit-actions';
+  editActions.innerHTML = `
+    <button class="save">✓ Valider et relancer</button>
+    <button class="cancel">Annuler</button>`;
+  div.appendChild(editActions);
+
+  editActions.querySelector('.cancel').addEventListener('click',()=>{
+    div.classList.remove('editing');
+    textarea.remove();
+    editActions.remove();
+    contentDiv.style.display = '';
+    if(actionsDiv) actionsDiv.style.display = '';
+  });
+
+  editActions.querySelector('.save').addEventListener('click', async ()=>{
+    const newText = textarea.value.trim();
+    if(!newText) return;
+    conv.messages = conv.messages.slice(0, idx);
+    conv.messages.push({role:'user', content:newText, timestamp:Date.now()});
+    saveState();
+    renderChat();
+    scrollDown();
+    await generateBotResponse();
+  });
 }
 
 /* ============================================================
-   ENVOI DE MESSAGE & GÉNÉRATION
+   RÉGÉNÉRATION
    ============================================================ */
 function addRegenButton(){
   document.querySelectorAll('.regen-wrap').forEach(e=>e.remove());
-  
   const conv = getCurrentConv();
-  if(conv.messages.length === 0) return;
-  const last = conv.messages[conv.messages.length-1];
-  if(last.role !== 'bot') return;
-  
+  if(!conv || conv.messages.length === 0) return;
+  if(conv.messages[conv.messages.length-1].role !== 'bot') return;
+
   const wrap = document.createElement('div');
   wrap.className = 'regen-wrap';
   const btn = document.createElement('button');
@@ -664,7 +681,6 @@ function addRegenButton(){
     conv.messages.pop();
     saveState();
     renderChat();
-    scrollDown();
     await generateBotResponse();
   });
   wrap.appendChild(btn);
@@ -672,48 +688,50 @@ function addRegenButton(){
   scrollDown();
 }
 
+/* ============================================================
+   ENVOI & GÉNÉRATION
+   ============================================================ */
 async function sendMessage(){
   const text = input.value.trim();
-  if(!text) return;
-  
+  if(!text || sendBtn.disabled) return;
+
   const conv = getCurrentConv();
   conv.messages.push({role:'user', content:text, timestamp:Date.now()});
-  
   if(conv.messages.length === 1){
     conv.title = text.slice(0,40) + (text.length>40?'…':'');
   }
-  
+
   input.value = '';
   input.style.height = 'auto';
   saveState();
   renderConversations();
-  
   appendMessageToDOM(conv.messages[conv.messages.length-1], conv.messages.length-1);
   scrollDown();
-  
+
   await generateBotResponse();
 }
 
 async function generateBotResponse(){
   const conv = getCurrentConv();
   sendBtn.disabled = true;
-  
+
   const typingDiv = document.createElement('div');
   typingDiv.className = 'msg bot';
   typingDiv.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
   chat.appendChild(typingDiv);
   scrollDown();
-  
+
   const startTime = performance.now();
-  
+
   try{
-    const systemContent = buildSystemPromptWithMemory();
-    
     const apiMessages = [
-      {role:'system', content: systemContent},
-      ...conv.messages.map(m=>({role: m.role==='bot'?'assistant':m.role, content:m.content}))
+      {role:'system', content:buildSystemPromptWithMemory()},
+      ...conv.messages.map(m=>({
+        role: m.role==='bot' ? 'assistant' : m.role,
+        content: m.content
+      }))
     ];
-    
+
     const seed = Math.floor(Math.random() * 100000);
     const response = await fetch(`https://text.pollinations.ai/openai?seed=${seed}`, {
       method:'POST',
@@ -725,32 +743,26 @@ async function generateBotResponse(){
         max_tokens: 2500
       })
     });
-    
+
     const duration = (performance.now() - startTime)/1000;
     typingDiv.remove();
-    
+
     if(!response.ok) throw new Error('Erreur API: '+response.status);
-    
+
     const data = await response.json();
-    const rawBotMessage = data.choices[0].message.content;
-    
-    const {clean, adds, removes} = parseMemoryBlocks(rawBotMessage);
-    
+    const raw = data.choices[0].message.content;
+    const {clean, adds, removes} = parseMemoryBlocks(raw);
+
     adds.forEach(a=>addAutoMemory(a));
     removes.forEach(r=>removeAutoMemoryByText(r));
-    
-    conv.messages.push({
-      role:'bot',
-      content: clean,
-      timestamp: Date.now(),
-      duration
-    });
+
+    conv.messages.push({role:'bot', content:clean, timestamp:Date.now(), duration});
     saveState();
-    
+
     appendMessageToDOM(conv.messages[conv.messages.length-1], conv.messages.length-1);
     addRegenButton();
     scrollDown();
-    
+
   }catch(err){
     typingDiv.remove();
     const errDiv = document.createElement('div');
@@ -766,48 +778,38 @@ async function generateBotResponse(){
 
 function buildSystemPromptWithMemory(){
   let prompt = BASE_SYSTEM_PROMPT;
-  
   if(state.manualMemory.length > 0){
     prompt += '\n\n=== MÉMOIRE MANUELLE (donnée par l\'utilisateur) ===\n';
-    state.manualMemory.forEach((m,i)=>{
-      prompt += `${i+1}. ${m.text}\n`;
-    });
+    state.manualMemory.forEach((m,i)=>{ prompt += `${i+1}. ${m.text}\n`; });
   }
-  
   if(state.autoMemory.length > 0){
     prompt += '\n\n=== TA MÉMOIRE LONG TERME AUTONOME ===\n';
-    state.autoMemory.forEach((m,i)=>{
-      prompt += `${i+1}. ${m.text}\n`;
-    });
+    state.autoMemory.forEach((m,i)=>{ prompt += `${i+1}. ${m.text}\n`; });
     prompt += '\nTu peux ajouter de nouveaux souvenirs ou supprimer ceux devenus obsolètes via les balises [MEM_ADD] et [MEM_REMOVE].\n';
   }
-  
   return prompt;
 }
 
 /* ============================================================
    ÉVÉNEMENTS
    ============================================================ */
+// Le bouton flottant : C'EST LUI qui rouvre toujours le panneau
+fabToggle.addEventListener('click', toggleSidebar);
+document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
+overlay.addEventListener('click', closeSidebar);
+
 sendBtn.addEventListener('click', sendMessage);
-
 input.addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter' && !e.shiftKey){
-    e.preventDefault();
-    sendMessage();
-  }
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
 });
-
 input.addEventListener('input', ()=>{
   input.style.height = 'auto';
   input.style.height = Math.min(input.scrollHeight, 200) + 'px';
 });
 
-document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
-document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
-overlay.addEventListener('click', closeSidebar);
-
 document.getElementById('newConvBtn').addEventListener('click', ()=>{
   createNewConversation();
+  if(window.innerWidth <= 700) closeSidebar();
 });
 
 document.querySelectorAll('.tab').forEach(tab=>{
@@ -824,28 +826,22 @@ document.getElementById('memAddBtn').addEventListener('click', ()=>{
   addManualMemory(inp.value);
   inp.value = '';
 });
-
 document.getElementById('memInput').addEventListener('keydown',(e)=>{
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    document.getElementById('memAddBtn').click();
-  }
+  if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('memAddBtn').click(); }
 });
 
-// Gestion du redimensionnement
-window.addEventListener('resize', ()=>{
-  if(window.innerWidth > 700){
-    overlay.classList.remove('show');
-  } else if(state.sidebarOpen){
-    overlay.classList.add('show');
-  }
+// Raccourci clavier : Tab ouvre/ferme le panneau (pratique)
+document.addEventListener('keydown',(e)=>{
+  if(e.key === 'Escape' && state.sidebarOpen) closeSidebar();
 });
+
+window.addEventListener('resize', applySidebarState);
 
 /* ============================================================
    INIT
    ============================================================ */
 loadState();
-initSidebarState();
+applySidebarState();
 renderAll();
 input.focus();
 </script>
