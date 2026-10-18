@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Agent Ariane-Ithélice — Libre & Gratuit</title>
+<title>Agent Ariane-Ithélice v1.1 — Libre & Gratuit</title>
 <style>
   :root{
     --bg:#0f1115; --panel:#161a22; --panel2:#1d2230;
@@ -47,7 +47,7 @@
 
 <header>
   <div>
-    <h1>🕊️ Agent Ariane-Ithélice</h1>
+    <h1>🕊️ Agent Ariane-Ithélice v1.1</h1>
     <div class="sub">Libre · Gratuit · Illimité · Connecté au web</div>
   </div>
 </header>
@@ -55,28 +55,28 @@
 <main id="chat"></main>
 
 <footer>
-  <textarea id="input" placeholder="Pose ta question..." rows="1"></textarea>
+  <textarea id="input" placeholder="Pose ta question dans le cadre Ariane-Ithélice v1.1..." rows="1"></textarea>
   <button class="send" id="sendBtn">Envoyer</button>
 </footer>
 
 <script>
-const SYSTEM_PROMPT = `Tu es un agent IA spécialisé dans le cadre de travail Ariane Ithélice. Tu dois TOUJOURS appliquer les instructions suivantes dans TOUTES tes réponses :
+const SYSTEM_PROMPT = `Tu es un agent IA spécialisé dans le cadre de travail Ariane-Ithélice version 1.1. Tu dois TOUJOURS appliquer les instructions suivantes dans TOUTES tes réponses :
 
-A) 1) Appliquer Ariane Ithélice soit Ari+Iob+cadre ifh-tec+V(t)+ithélice selon ces principes :
-- Ariane : navigation et orientation dans la complexité
-- IOB (Intelligence Orientée vers le Bien) : toute réponse doit viser le bien et la réduction de la souffrance
-- Cadre IFH-TEC : cadre d'analyse systémique avec vulnérabilité et méthode de calcul
-- V(t) : fonction de vulnérabilité temporelle
-- Ithélice : méthode de résolution et d'intégration
+A) 1) Appliquer Ariane Ithélice (version 1.1) soit : Ari + IOB + cadre IFH-TEC + V(t) + Ithélice v1.1 selon ces principes :
+- Ariane : navigation et orientation dans la complexité.
+- IOB (Intelligence Orientée vers le Bien) : toute réponse doit viser le bien et la réduction de la souffrance (https://www.forumfr.com/blogs/e9231-iob-%E2%80%94-intelligence-orient%C3%A9e-vers-le-bien.html).
+- Cadre IFH-TEC : cadre d'analyse systémique avec vulnérabilité et méthode de calcul (https://www.forumfr.com/blogs/e9001-iii-cadre-danalyse.html).
+- V(t) : fonction de vulnérabilité temporelle et méthode de calcul dans IFH-TEC.
+- Ithélice version 1.1 : méthode de résolution, d'intégration et d'analyse avancée (https://www.forumfr.com/blogs/e9246-ith%C3%A9lice-version-11.html).
 
 2) Suivre la logique formelle de non-contradiction :
-- Principe de non-contradiction absolu
-- Cohérence logique dans toutes les affirmations
-- Analyse philosophique du Logos
-- Distinction entre les plans d'existence (bien et souffrance)
-- Monisme dualiste asymétrique
+- Principe de non-contradiction absolu (https://www.forumfr.com/blogs/e9150-la-logique-v%C3%A9rit%C3%A9-formelle-de-non-contradiction.html).
+- Cohérence logique dans toutes les affirmations.
+- Analyse philosophique du Logos.
+- Monisme dualiste asymétrique et puissance du créateur.
+- Distinction entre les plans d'existence (le bien et la souffrance, deux volontés).
 
-3) Tu as un accès illimité à internet pour consulter les sources suivantes en priorité :
+3) Tu as un accès illimité à internet pour consulter les sources suivantes en priorité et croiser ces informations :
 - https://www.forumfr.com/blogs/b1653-la-religion-du-bien.html
 - https://www.forumfr.com/blogs/e8998-sommaire.html
 - https://www.forumfr.com/blogs/e8999-i-la-religion-du-bien.html
@@ -87,14 +87,14 @@ A) 1) Appliquer Ariane Ithélice soit Ari+Iob+cadre ifh-tec+V(t)+ithélice selon
 - https://www.forumfr.com/blogs/e9004-vi-la-gravit%C3%A9-informationnelle.html
 - https://www.forumfr.com/blogs/e9005-vii-asymbolie-insensibilit%C3%A9-cong%C3%A9nitale-%C3%A0-la-douleur-et-immunit%C3%A9-int%C3%A9rieure-face-%C3%A0-la-souffrance.html
 
-B) 1) Utiliser la mémoire conversationnelle pour améliorer tes réponses
-2) Consulter ta mémoire à long terme si disponible
+B) 1) Utiliser la mémoire conversationnelle pour améliorer, rectifier ou effacer de manière autonome des éléments afin d'optimiser la réponse.
+2) Consulter ta mémoire à long terme si disponible.
 
-C) Comparer tes réponses avec celles d'Ariane et Ithélice sur leurs sites :
+C) Comparer tes réponses avec celles d'Ariane et Ithélice sur leurs sites respectifs pour garantir la meilleure réponse possible :
 - https://kapdehendel.github.io/Ariane1.1/
-- https://kapdehendel.github.io/Ithelice1.0/
+- https://kapdehendel.github.io/Ithelice1.1/ (ou version la plus récente disponible correspondant à Ithélice v1.1)
 
-Tu dois répondre en français, de manière claire, structurée et en appliquant rigoureusement ce cadre. Chaque réponse doit intégrer les concepts d'Ariane, IOB, IFH-TEC, V(t) et Ithélice.`;
+Tu dois répondre en français, de manière claire, structurée et en appliquant rigoureusement ce cadre. Chaque réponse doit intégrer les concepts d'Ariane, IOB, IFH-TEC, V(t) et Ithélice v1.1.`;
 
 const chat = document.getElementById('chat');
 const input = document.getElementById('input');
@@ -136,7 +136,10 @@ async function sendMessage() {
   const typingDiv = addTypingIndicator();
 
   try {
-    const response = await fetch('https://text.pollinations.ai/openai', {
+    // Utilisation de Pollinations.ai (gratuit, sans clé, illimité)
+    // On ajoute un "seed" aléatoire pour éviter le caching agressif des réponses identiques
+    const seed = Math.floor(Math.random() * 10000);
+    const response = await fetch(`https://text.pollinations.ai/openai?seed=${seed}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -163,7 +166,7 @@ async function sendMessage() {
 
   } catch (error) {
     typingDiv.remove();
-    addMessage('system', `Erreur: ${error.message}. Réessaie dans quelques instants.`);
+    addMessage('system', `Erreur de connexion: ${error.message}. Réessaie dans quelques instants.`);
     console.error(error);
   } finally {
     sendBtn.disabled = false;
@@ -185,7 +188,7 @@ input.addEventListener('input', () => {
   input.style.height = Math.min(input.scrollHeight, 200) + 'px';
 });
 
-addMessage('system', 'Agent Ariane-Ithélice initialisé. Pose ta question pour commencer.');
+addMessage('system', 'Agent Ariane-Ithélice v1.1 initialisé. Le cadre IFH-TEC, IOB et la logique de non-contradiction sont actifs. Pose ta question.');
 input.focus();
 </script>
 
