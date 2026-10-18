@@ -85,3 +85,711 @@
     padding:12px 18px;background:var(--panel);border-bottom:1px solid var(--border);
     display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
   }
+  header .left{display:flex;align-items:center;gap:12px}
+  header h1{margin:0;font-size:18px;color:var(--accent)}
+  header .sub{font-size:12px;color:var(--muted)}
+  .toggle-btn{
+    background:var(--panel2);color:var(--text);border:1px solid var(--border);
+    width:36px;height:36px;border-radius:6px;cursor:pointer;font-size:16px;
+  }
+  .toggle-btn:hover{border-color:var(--accent)}
+  
+  main{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .msg{max-width:85%;padding:12px 14px;border-radius:12px;line-height:1.5;
+       white-space:pre-wrap;word-wrap:break-word;font-size:14.5px;position:relative}
+  .msg.user{align-self:flex-end;background:var(--user);border:1px solid #2e3a57}
+  .msg.bot{align-self:flex-start;background:var(--bot);border:1px solid var(--border)}
+  .msg.system{align-self:center;background:transparent;color:var(--muted);
+              font-size:12px;font-style:italic;border:none;padding:4px;max-width:100%}
+  .msg pre{background:#0b0d12;padding:10px;border-radius:6px;overflow-x:auto;font-size:13px}
+  .msg code{background:#0b0d12;padding:1px 5px;border-radius:4px;font-size:13px}
+  .msg .meta{font-size:11px;color:var(--muted);margin-top:6px;display:flex;gap:8px;align-items:center}
+  .msg .msg-actions{display:flex;gap:4px;margin-top:6px}
+  .msg .msg-actions button{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;
+  }
+  .msg .msg-actions button:hover{color:var(--accent);border-color:var(--accent)}
+  .msg.editing textarea{
+    width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--accent);
+    border-radius:6px;padding:8px;font-size:14px;font-family:inherit;resize:vertical;
+    min-height:60px;
+  }
+  .msg.editing .edit-actions{display:flex;gap:6px;margin-top:6px}
+  .msg.editing .edit-actions button{
+    padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;border:none;
+  }
+  .msg.editing .edit-actions .save{background:var(--accent);color:#0a1020;font-weight:600}
+  .msg.editing .edit-actions .cancel{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+  
+  .regen-wrap{align-self:flex-start;margin-top:-8px;margin-bottom:4px}
+  .regen-btn{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;
+  }
+  .regen-btn:hover{color:var(--accent);border-color:var(--accent)}
+  
+  footer{padding:12px;background:var(--panel);border-top:1px solid var(--border);
+         display:flex;gap:8px;align-items:flex-end}
+  textarea.input-area{
+    flex:1;resize:none;background:var(--panel2);color:var(--text);
+    border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px;
+    font-family:inherit;min-height:48px;max-height:200px;
+  }
+  textarea.input-area:focus{outline:none;border-color:var(--accent)}
+  button.send{
+    background:var(--accent);color:#0a1020;border:none;padding:10px 18px;
+    border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;
+  }
+  button.send:disabled{opacity:.5;cursor:not-allowed}
+  
+  .typing{display:inline-block}
+  .typing span{display:inline-block;width:6px;height:6px;background:var(--muted);
+               border-radius:50%;margin:0 2px;animation:blink 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.2s}
+  .typing span:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+  
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic}
+  
+  @media (max-width:700px){
+    :root{--sidebar-w:85vw}
+    .sidebar{position:absolute;z-index:20;height:100vh}
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>🕊️ Ariane-Ithélice</h2>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="conv">Conversations</div>
+    <div class="tab" data-tab="mem">Mémoire</div>
+  </div>
+  
+  <div class="tab-content active" id="tab-conv">
+    <button class="new-btn" id="newConvBtn">+ Nouvelle conversation</button>
+    <div id="convList"></div>
+  </div>
+  
+  <div class="tab-content" id="tab-mem">
+    <h3 style="font-size:13px;color:var(--accent);margin:4px 0 8px">Mémoire manuelle</h3>
+    <div class="mem-input">
+      <input type="text" id="memInput" placeholder="Ajouter un souvenir..." />
+      <button id="memAddBtn">+</button>
+    </div>
+    <div id="manualMemList"></div>
+    
+    <h3 style="font-size:13px;color:var(--accent);margin:16px 0 8px">Mémoire long terme (autonome)</h3>
+    <div id="autoMemList"></div>
+  </div>
+</aside>
+
+<div class="main">
+  <header>
+    <div class="left">
+      <button class="toggle-btn" id="toggleSidebar" title="Panneau latéral">☰</button>
+      <div>
+        <h1>🕊️ Agent Ariane-Ithélice v1.1</h1>
+        <div class="sub">Libre · Gratuit · Illimité · Mémoire persistante</div>
+      </div>
+    </div>
+  </header>
+
+  <main id="chat"></main>
+
+  <footer>
+    <textarea class="input-area" id="input" placeholder="Pose ta question dans le cadre Ariane-Ithélice v1.1..." rows="1"></textarea>
+    <button class="send" id="sendBtn">Envoyer</button>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   PROMPT SYSTÈME
+   ============================================================ */
+const BASE_SYSTEM_PROMPT = `Tu es un agent IA spécialisé dans le cadre de travail Ariane-Ithélice version 1.1. Tu dois TOUJOURS appliquer les instructions suivantes dans TOUTES tes réponses :
+
+A) 1) Appliquer Ariane Ithélice (version 1.1) soit : Ari + IOB + cadre IFH-TEC + V(t) + Ithélice v1.1 :
+- Ariane : navigation et orientation dans la complexité.
+- IOB (Intelligence Orientée vers le Bien) : toute réponse doit viser le bien et la réduction de la souffrance.
+- Cadre IFH-TEC : cadre d'analyse systémique avec vulnérabilité et méthode de calcul.
+- V(t) : fonction de vulnérabilité temporelle.
+- Ithélice version 1.1 : méthode de résolution, d'intégration et d'analyse avancée.
+
+2) Suivre la logique formelle de non-contradiction :
+- Principe de non-contradiction absolu.
+- Cohérence logique dans toutes les affirmations.
+- Analyse philosophique du Logos.
+- Monisme dualiste asymétrique et puissance du créateur.
+- Distinction entre les plans d'existence (le bien et la souffrance, deux volontés).
+
+3) Sources prioritaires à consulter (accès web) :
+- Religion du Bien, Sommaire, Théorie de l'expansion par la condensation (TEC), Cadre d'analyse, Logique du pivot, Thérapie de la menace dissoute (TMD), Gravité informationnelle, Asymbolie et immunité intérieure.
+
+B) 1) Utiliser la mémoire conversationnelle pour améliorer, rectifier ou effacer de manière autonome des éléments.
+2) Consulter ta mémoire à long terme si disponible.
+
+C) Comparer tes réponses avec celles d'Ariane et Ithélice sur leurs sites pour garantir la meilleure réponse possible.
+
+Tu dois répondre en français, de manière claire, structurée et en appliquant rigoureusement ce cadre.
+
+=== MÉMOIRE AUTONOME ===
+À la fin de CHAQUE réponse, si tu identifies des informations importantes, stables et réutilisables à retenir sur l'utilisateur, le contexte ou les sujets abordés, tu AJOUTES obligatoirement à la toute fin de ta réponse (après un saut de ligne) un bloc au format exact suivant :
+
+[MEM_ADD]information à retenir 1[/MEM_ADD]
+[MEM_ADD]information à retenir 2[/MEM_ADD]
+[MEM_REMOVE]ancien souvenir devenu faux ou obsolète[/MEM_REMOVE]
+
+Règles :
+- N'ajoute que des faits utiles, stables et non triviaux (préférences, contexte personnel, projets, concepts récurrents).
+- Ne répète pas ce qui est déjà dans ta mémoire.
+- Si un ancien souvenir est contredit ou devenu faux, supprime-le avec [MEM_REMOVE].
+- Si rien de nouveau à retenir, n'ajoute aucun bloc.
+- Ces blocs seront automatiquement retirés de l'affichage, l'utilisateur ne les verra pas.`;
+
+/* ============================================================
+   ÉTAT GLOBAL
+   ============================================================ */
+const STORAGE_KEY = 'ariane_ithelice_state_v1';
+
+let state = {
+  conversations: [],
+  currentId: null,
+  manualMemory: [],
+  autoMemory: [],
+  sidebarOpen: true
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state = {...state, ...parsed};
+    }
+  }catch(e){console.error(e)}
+  if(state.conversations.length === 0){
+    createNewConversation(true);
+  } else if(!state.currentId || !state.conversations.find(c=>c.id===state.currentId)){
+    state.currentId = state.conversations[0].id;
+  }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    console.error('Erreur sauvegarde:', e);
+    alert('Impossible de sauvegarder (stockage plein ?).');
+  }
+}
+
+function createNewConversation(silent=false){
+  const id = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  const conv = {
+    id,
+    title: 'Nouvelle conversation',
+    createdAt: Date.now(),
+    messages: []
+  };
+  state.conversations.unshift(conv);
+  state.currentId = id;
+  saveState();
+  if(!silent) renderAll();
+  return conv;
+}
+
+function getCurrentConv(){
+  return state.conversations.find(c=>c.id===state.currentId);
+}
+
+function deleteConversation(id){
+  if(!confirm('Supprimer cette conversation ?')) return;
+  state.conversations = state.conversations.filter(c=>c.id!==id);
+  if(state.currentId === id){
+    if(state.conversations.length === 0) createNewConversation(true);
+    else state.currentId = state.conversations[0].id;
+  }
+  saveState();
+  renderAll();
+}
+
+function switchConversation(id){
+  state.currentId = id;
+  saveState();
+  renderAll();
+}
+
+/* ============================================================
+   MÉMOIRE
+   ============================================================ */
+function addManualMemory(text){
+  text = text.trim();
+  if(!text) return;
+  state.manualMemory.push({id:'m_'+Date.now(), text, createdAt:Date.now()});
+  saveState();
+  renderMemory();
+}
+
+function removeManualMemory(id){
+  state.manualMemory = state.manualMemory.filter(m=>m.id!==id);
+  saveState();
+  renderMemory();
+}
+
+function addAutoMemory(text){
+  text = text.trim();
+  if(!text) return;
+  // éviter doublons
+  if(state.autoMemory.some(m=>m.text.toLowerCase()===text.toLowerCase())) return;
+  state.autoMemory.push({id:'a_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), text, createdAt:Date.now()});
+  saveState();
+  renderMemory();
+}
+
+function removeAutoMemory(id){
+  state.autoMemory = state.autoMemory.filter(m=>m.id!==id);
+  saveState();
+  renderMemory();
+}
+
+function removeAutoMemoryByText(text){
+  const t = text.trim().toLowerCase();
+  state.autoMemory = state.autoMemory.filter(m=>m.text.trim().toLowerCase()!==t);
+  saveState();
+  renderMemory();
+}
+
+/* ============================================================
+   PARSING DES BLOCS MÉMOIRE DANS LA RÉPONSE
+   ============================================================ */
+function parseMemoryBlocks(text){
+  const adds = [];
+  const removes = [];
+  let clean = text;
+  
+  const addRegex = /\[MEM_ADD\]([\s\S]*?)\[\/MEM_ADD\]/g;
+  let m;
+  while((m = addRegex.exec(text)) !== null){
+    adds.push(m[1].trim());
+  }
+  clean = clean.replace(/\[MEM_ADD\][\s\S]*?\[\/MEM_ADD\]/g,'');
+  
+  const remRegex = /\[MEM_REMOVE\]([\s\S]*?)\[\/MEM_REMOVE\]/g;
+  while((m = remRegex.exec(text)) !== null){
+    removes.push(m[1].trim());
+  }
+  clean = clean.replace(/\[MEM_REMOVE\][\s\S]*?\[\/MEM_REMOVE\]/g,'');
+  
+  return {clean: clean.trim(), adds, removes};
+}
+
+/* ============================================================
+   RENDU
+   ============================================================ */
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const convList = document.getElementById('convList');
+const manualMemList = document.getElementById('manualMemList');
+const autoMemList = document.getElementById('autoMemList');
+
+function renderConversations(){
+  convList.innerHTML = '';
+  if(state.conversations.length === 0){
+    convList.innerHTML = '<div class="empty">Aucune conversation</div>';
+    return;
+  }
+  state.conversations.forEach(conv=>{
+    const div = document.createElement('div');
+    div.className = 'conv-item' + (conv.id===state.currentId?' active':'');
+    const date = new Date(conv.createdAt).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    div.innerHTML = `
+      <div class="title">${escapeHtml(conv.title)}</div>
+      <div class="date">${date} · ${conv.messages.length} msg</div>
+      <div class="actions">
+        <button class="icon-btn danger" title="Supprimer" data-del="${conv.id}">🗑</button>
+      </div>
+    `;
+    div.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-del]')) return;
+      switchConversation(conv.id);
+    });
+    div.querySelector('[data-del]').addEventListener('click',(e)=>{
+      e.stopPropagation();
+      deleteConversation(conv.id);
+    });
+    convList.appendChild(div);
+  });
+}
+
+function renderMemory(){
+  manualMemList.innerHTML = '';
+  if(state.manualMemory.length === 0){
+    manualMemList.innerHTML = '<div class="empty">Aucun souvenir manuel</div>';
+  } else {
+    state.manualMemory.forEach(m=>{
+      const div = document.createElement('div');
+      div.className = 'mem-item';
+      div.innerHTML = `
+        <span class="badge">Manuel</span>
+        <div class="content">${escapeHtml(m.text)}</div>
+        <div class="actions">
+          <button class="icon-btn danger" title="Supprimer" data-del="${m.id}">✕</button>
+        </div>
+      `;
+      div.querySelector('[data-del]').addEventListener('click',()=>removeManualMemory(m.id));
+      manualMemList.appendChild(div);
+    });
+  }
+  
+  autoMemList.innerHTML = '';
+  if(state.autoMemory.length === 0){
+    autoMemList.innerHTML = '<div class="empty">L\'IA n\'a encore rien mémorisé automatiquement</div>';
+  } else {
+    state.autoMemory.forEach(m=>{
+      const div = document.createElement('div');
+      div.className = 'mem-item';
+      const date = new Date(m.createdAt).toLocaleDateString('fr-FR');
+      div.innerHTML = `
+        <span class="badge auto">Autonome · ${date}</span>
+        <div class="content">${escapeHtml(m.text)}</div>
+        <div class="actions">
+          <button class="icon-btn danger" title="Oublier" data-del="${m.id}">✕</button>
+        </div>
+      `;
+      div.querySelector('[data-del]').addEventListener('click',()=>removeAutoMemory(m.id));
+      autoMemList.appendChild(div);
+    });
+  }
+}
+
+function renderChat(){
+  chat.innerHTML = '';
+  const conv = getCurrentConv();
+  if(!conv) return;
+  
+  if(conv.messages.length === 0){
+    const sys = document.createElement('div');
+    sys.className = 'msg system';
+    sys.textContent = 'Agent Ariane-Ithélice v1.1 initialisé. Le cadre IFH-TEC, IOB et la logique de non-contradiction sont actifs. Pose ta question.';
+    chat.appendChild(sys);
+    return;
+  }
+  
+  conv.messages.forEach((msg, idx)=>{
+    appendMessageToDOM(msg, idx);
+  });
+  
+  scrollDown();
+}
+
+function appendMessageToDOM(msg, idx){
+  const div = document.createElement('div');
+  div.className = `msg ${msg.role}`;
+  div.dataset.idx = idx;
+  
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'content';
+  contentDiv.textContent = msg.content;
+  div.appendChild(contentDiv);
+  
+  if(msg.role === 'bot' && msg.duration != null){
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = `⏱ ${msg.duration.toFixed(1)}s`;
+    div.appendChild(meta);
+  }
+  
+  if(msg.role === 'user'){
+    const actions = document.createElement('div');
+    actions.className = 'msg-actions';
+    const editBtn = document.createElement('button');
+    editBtn.textContent = '✏️ Modifier';
+    editBtn.addEventListener('click', ()=>startEditMessage(idx, div));
+    actions.appendChild(editBtn);
+    div.appendChild(actions);
+  }
+  
+  chat.appendChild(div);
+  return div;
+}
+
+function startEditMessage(idx, div){
+  const conv = getCurrentConv();
+  const msg = conv.messages[idx];
+  const contentDiv = div.querySelector('.content');
+  const actionsDiv = div.querySelector('.msg-actions');
+  
+  div.classList.add('editing');
+  contentDiv.style.display = 'none';
+  if(actionsDiv) actionsDiv.style.display = 'none';
+  
+  const textarea = document.createElement('textarea');
+  textarea.value = msg.content;
+  div.insertBefore(textarea, div.firstChild);
+  
+  const editActions = document.createElement('div');
+  editActions.className = 'edit-actions';
+  editActions.innerHTML = `
+    <button class="save">✓ Valider et relancer</button>
+    <button class="cancel">Annuler</button>
+  `;
+  div.appendChild(editActions);
+  
+  editActions.querySelector('.cancel').addEventListener('click',()=>{
+    div.classList.remove('editing');
+    textarea.remove();
+    editActions.remove();
+    contentDiv.style.display = '';
+    if(actionsDiv) actionsDiv.style.display = '';
+  });
+  
+  editActions.querySelector('.save').addEventListener('click', async ()=>{
+    const newText = textarea.value.trim();
+    if(!newText) return;
+    
+    // Supprimer ce message et tous les suivants
+    conv.messages = conv.messages.slice(0, idx);
+    conv.messages.push({role:'user', content:newText, timestamp:Date.now()});
+    saveState();
+    
+    // Re-render
+    renderChat();
+    scrollDown();
+    
+    // Relancer la réponse
+    await generateBotResponse();
+  });
+}
+
+function renderAll(){
+  renderConversations();
+  renderChat();
+  renderMemory();
+}
+
+function scrollDown(){
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ============================================================
+   ENVOI DE MESSAGE & GÉNÉRATION
+   ============================================================ */
+function addRegenButton(){
+  // retirer ancien bouton regen s'il existe
+  document.querySelectorAll('.regen-wrap').forEach(e=>e.remove());
+  
+  const conv = getCurrentConv();
+  if(conv.messages.length === 0) return;
+  const last = conv.messages[conv.messages.length-1];
+  if(last.role !== 'bot') return;
+  
+  const wrap = document.createElement('div');
+  wrap.className = 'regen-wrap';
+  const btn = document.createElement('button');
+  btn.className = 'regen-btn';
+  btn.textContent = '🔄 Régénérer la réponse';
+  btn.addEventListener('click', async ()=>{
+    // supprimer le dernier message bot
+    conv.messages.pop();
+    saveState();
+    renderChat();
+    scrollDown();
+    await generateBotResponse();
+  });
+  wrap.appendChild(btn);
+  chat.appendChild(wrap);
+  scrollDown();
+}
+
+async function sendMessage(){
+  const text = input.value.trim();
+  if(!text) return;
+  
+  const conv = getCurrentConv();
+  conv.messages.push({role:'user', content:text, timestamp:Date.now()});
+  
+  // Titre auto si premier message
+  if(conv.messages.length === 1){
+    conv.title = text.slice(0,40) + (text.length>40?'…':'');
+  }
+  
+  input.value = '';
+  input.style.height = 'auto';
+  saveState();
+  renderConversations();
+  
+  // Afficher le message user
+  appendMessageToDOM(conv.messages[conv.messages.length-1], conv.messages.length-1);
+  scrollDown();
+  
+  await generateBotResponse();
+}
+
+async function generateBotResponse(){
+  const conv = getCurrentConv();
+  sendBtn.disabled = true;
+  
+  // Indicateur de frappe
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'msg bot';
+  typingDiv.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  chat.appendChild(typingDiv);
+  scrollDown();
+  
+  const startTime = performance.now();
+  
+  try{
+    // Construire le prompt système avec mémoire
+    const systemContent = buildSystemPromptWithMemory();
+    
+    const apiMessages = [
+      {role:'system', content: systemContent},
+      ...conv.messages.map(m=>({role: m.role==='bot'?'assistant':m.role, content:m.content}))
+    ];
+    
+    const seed = Math.floor(Math.random() * 100000);
+    const response = await fetch(`https://text.pollinations.ai/openai?seed=${seed}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'openai',
+        messages: apiMessages,
+        temperature: 0.7,
+        max_tokens: 2500
+      })
+    });
+    
+    const duration = (performance.now() - startTime)/1000;
+    typingDiv.remove();
+    
+    if(!response.ok) throw new Error('Erreur API: '+response.status);
+    
+    const data = await response.json();
+    const rawBotMessage = data.choices[0].message.content;
+    
+    // Parser les blocs mémoire
+    const {clean, adds, removes} = parseMemoryBlocks(rawBotMessage);
+    
+    // Appliquer la mémoire autonome
+    adds.forEach(a=>addAutoMemory(a));
+    removes.forEach(r=>removeAutoMemoryByText(r));
+    
+    // Sauvegarder le message bot
+    conv.messages.push({
+      role:'bot',
+      content: clean,
+      timestamp: Date.now(),
+      duration
+    });
+    saveState();
+    
+    // Afficher
+    const msgDiv = appendMessageToDOM(conv.messages[conv.messages.length-1], conv.messages.length-1);
+    addRegenButton();
+    scrollDown();
+    
+  }catch(err){
+    typingDiv.remove();
+    const errDiv = document.createElement('div');
+    errDiv.className = 'msg system';
+    errDiv.textContent = '⚠️ Erreur: ' + err.message + '. Réessaie dans quelques instants.';
+    chat.appendChild(errDiv);
+    console.error(err);
+  }finally{
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+function buildSystemPromptWithMemory(){
+  let prompt = BASE_SYSTEM_PROMPT;
+  
+  if(state.manualMemory.length > 0){
+    prompt += '\n\n=== MÉMOIRE MANUELLE (donnée par l\'utilisateur) ===\n';
+    state.manualMemory.forEach((m,i)=>{
+      prompt += `${i+1}. ${m.text}\n`;
+    });
+  }
+  
+  if(state.autoMemory.length > 0){
+    prompt += '\n\n=== TA MÉMOIRE LONG TERME AUTONOME ===\n';
+    state.autoMemory.forEach((m,i)=>{
+      prompt += `${i+1}. ${m.text}\n`;
+    });
+    prompt += '\nTu peux ajouter de nouveaux souvenirs ou supprimer ceux devenus obsolètes via les balises [MEM_ADD] et [MEM_REMOVE].\n';
+  }
+  
+  return prompt;
+}
+
+/* ============================================================
+   ÉVÉNEMENTS
+   ============================================================ */
+sendBtn.addEventListener('click', sendMessage);
+
+input.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+input.addEventListener('input', ()=>{
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+});
+
+document.getElementById('toggleSidebar').addEventListener('click', ()=>{
+  state.sidebarOpen = !state.sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('closed', !state.sidebarOpen);
+  saveState();
+});
+
+document.getElementById('newConvBtn').addEventListener('click', ()=>{
+  createNewConversation();
+});
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('memAddBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('memInput');
+  addManualMemory(inp.value);
+  inp.value = '';
+});
+
+document.getElementById('memInput').addEventListener('keydown',(e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    document.getElementById('memAddBtn').click();
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+loadState();
+document.getElementById('sidebar').classList.toggle('closed', !state.sidebarOpen);
+renderAll();
+input.focus();
+</script>
+
+</body>
+</html>
