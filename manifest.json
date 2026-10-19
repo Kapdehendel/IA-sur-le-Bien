@@ -1,0 +1,16 @@
+{
+  "name": "Agent Ariane-Ithélice v1.1",
+  "short_name": "Ariane-Ithélice",
+  "description": "IA libre, gratuite et illimitée, guidée par le cadre IOB et IFH-TEC.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#161a22",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3062/3062634.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
