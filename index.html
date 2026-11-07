@@ -207,6 +207,12 @@ C) Comparer tes réponses avec celles d'Ariane et Ithélice sur leurs sites pour
 
 Tu dois répondre en français, de manière claire, structurée et en appliquant rigoureusement ce cadre.
 
+RÈGLE ABSOLUE ANTI-TRONCATURE :
+- Réponds TOUJOURS de manière complète et terminée.
+- Ne coupe JAMAIS ta réponse au milieu d'une phrase, d'une idée, d'une liste ou d'une explication.
+- Termine toujours proprement chaque réponse. Si tu sens que tu arrives à une limite, conclus clairement plutôt que de t'arrêter brutalement.
+- Préfère une réponse un peu plus courte mais complète plutôt qu'une réponse longue et coupée.
+
 === MÉMOIRE AUTONOME ===
 À la fin de CHAQUE réponse, si tu identifies des informations importantes, stables et réutilisables à retenir sur l'utilisateur, le contexte ou les sujets abordés, tu AJOUTES obligatoirement à la toute fin de ta réponse (après un saut de ligne) un bloc au format exact suivant :
 
@@ -435,7 +441,7 @@ async function generateBotResponse(){
     const seed = Math.floor(Math.random() * 100000);
     const response = await fetch(`https://text.pollinations.ai/openai?seed=${seed}`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({model:'openai', messages: apiMessages, temperature: 0.7, max_tokens: 2500})
+      body: JSON.stringify({model:'openai', messages: apiMessages, temperature: 0.7, max_tokens: 8192})
     });
     const duration = (performance.now() - startTime)/1000; typingDiv.remove();
     if(!response.ok) throw new Error('Erreur API: '+response.status);
